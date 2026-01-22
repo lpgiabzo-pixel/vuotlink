@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Web VÆ°á»£t Link</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{
+  margin:0;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.card{
+  background:#fff;
+  width:350px;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+h2{text-align:center}
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+.btn-login{background:#667eea;color:#fff}
+.btn-register{background:#eee;margin-top:8px}
+#msg{text-align:center;margin-top:10px;color:red}
+.hidden{display:none}
+
+/* dashboard */
+.dashboard{
+  width:90%;
+  max-width:600px;
+  background:#fff;
+  border-radius:18px;
+  padding:25px;
+}
+.menu{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+.menu button{
+  flex:1;
+  background:#667eea;
+  color:white;
+}
+.box{
+  background:#f4f6fb;
+  padding:20px;
+  border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+  <h2>ÄÄƒng nháº­p</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Máº­t kháº©u">
+  <button class="btn-login" id="loginBtn">ÄÄƒng nháº­p</button>
+  <button class="btn-register" id="registerBtn">ÄÄƒng kĂ½</button>
+  <div id="msg"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard hidden" id="dashboard">
+  <h2>Dashboard</h2>
+  <div class="menu">
+    <button onclick="showTab('home')">Trang chá»§</button>
+    <button onclick="showTab('task')">Nhiá»‡m vá»¥</button>
+    <button onclick="logout()">ÄÄƒng xuáº¥t</button>
+  </div>
+
+  <div class="box" id="home">
+    <p>Email: <b id="userEmail"></b></p>
+    <p>Coin: <b id="coin">0</b></p>
+  </div>
+
+  <div class="box hidden" id="task">
+    <p>đŸ”— VÆ°á»£t link nháº­n 10 coin</p>
+    <button onclick="earnCoin()">Thá»±c hiá»‡n</button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://apshisucoymuvbbiuifr.supabase.co",
+  "sb_publishable_JilWCc-jeEaiqpZT88wWzg_ncjEcBs5"
+);
+
+const loginBox = document.getElementById("loginBox");
+const dashboard = document.getElementById("dashboard");
+const msg = document.getElementById("msg");
+const userEmail = document.getElementById("userEmail");
+const coinEl = document.getElementById("coin");
+
+let coin = 0;
+
+// LOGIN
+loginBtn.onclick = async () => {
+  msg.innerText = "Äang Ä‘Äƒng nháº­p...";
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
+  });
+  if(error){msg.innerText=error.message;return;}
+  loadUser(data.user);
+};
+
+// REGISTER
+registerBtn.onclick = async () => {
+  msg.innerText = "Äang Ä‘Äƒng kĂ½...";
+  const { error } = await supabase.auth.signUp({
+    email: email.value,
+    password: password.value
+  });
+  msg.innerText = error ? error.message : "ÄÄƒng kĂ½ thĂ nh cĂ´ng, Ä‘Äƒng nháº­p láº¡i!";
+};
+
+// LOAD USER
+function loadUser(user){
+  loginBox.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  userEmail.innerText = user.email;
+}
+
+// CHECK SESSION
+const { data: { session } } = await supabase.auth.getSession();
+if(session) loadUser(session.user);
+
+// LOGOUT
+window.logout = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+// TAB
+window.showTab = (id)=>{
+  document.querySelectorAll(".box").forEach(b=>b.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+};
+
+// EARN COIN (demo)
+window.earnCoin = ()=>{
+  coin += 10;
+  coinEl.innerText = coin;
+};
+</script>
+
+</body>
+    </html>
